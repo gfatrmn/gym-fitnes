@@ -2,8 +2,10 @@ package com.example.arenafitness
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -26,10 +28,11 @@ class ProfileActivity : AppCompatActivity() {
         val tvProfileBirthDate = findViewById<TextView>(R.id.tvProfileBirthDate)
         val tvProfileGender = findViewById<TextView>(R.id.tvProfileGender)
         val tvProfileAddress = findViewById<TextView>(R.id.tvProfileAddress)
+        val ivProfilePicture = findViewById<ImageView>(R.id.ivProfilePicture)
         val btnEditProfile = findViewById<Button>(R.id.btnEditProfile)
         
         // Load data user lengkap
-        loadProfileData(tvProfileName, tvProfileEmail, tvProfilePhone, tvProfileBirthDate, tvProfileGender, tvProfileAddress)
+        loadProfileData(tvProfileName, tvProfileEmail, tvProfilePhone, tvProfileBirthDate, tvProfileGender, tvProfileAddress, ivProfilePicture)
 
         // Logika klik EDIT PROFILE
         btnEditProfile.setOnClickListener {
@@ -80,7 +83,8 @@ class ProfileActivity : AppCompatActivity() {
         val tvProfileBirthDate = findViewById<TextView>(R.id.tvProfileBirthDate)
         val tvProfileGender = findViewById<TextView>(R.id.tvProfileGender)
         val tvProfileAddress = findViewById<TextView>(R.id.tvProfileAddress)
-        loadProfileData(tvProfileName, tvProfileEmail, tvProfilePhone, tvProfileBirthDate, tvProfileGender, tvProfileAddress)
+        val ivProfilePicture = findViewById<ImageView>(R.id.ivProfilePicture)
+        loadProfileData(tvProfileName, tvProfileEmail, tvProfilePhone, tvProfileBirthDate, tvProfileGender, tvProfileAddress, ivProfilePicture)
     }
 
     private fun loadProfileData(
@@ -89,7 +93,8 @@ class ProfileActivity : AppCompatActivity() {
         tvPhone: TextView, 
         tvBirth: TextView, 
         tvGender: TextView, 
-        tvAddress: TextView
+        tvAddress: TextView,
+        ivPicture: ImageView
     ) {
         val db = dbHelper.readableDatabase
         val cursor = db.query(
@@ -107,6 +112,7 @@ class ProfileActivity : AppCompatActivity() {
             val birth = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_BIRTHDATE))
             val gender = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_GENDER))
             val address = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_ADDRESS))
+            val imageUriStr = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_IMAGE_URI))
 
             tvName.text = name.uppercase()
             tvEmail.text = email
@@ -114,6 +120,18 @@ class ProfileActivity : AppCompatActivity() {
             tvBirth.text = birth ?: "-"
             tvGender.text = gender ?: "-"
             tvAddress.text = address ?: "-"
+
+            if (!imageUriStr.isNullOrEmpty()) {
+                try {
+                    // Berikan izin akses URI secara permanen jika perlu, 
+                    // namun untuk ImageView sederhana setImageURI biasanya cukup jika URI valid.
+                    ivPicture.setImageURI(Uri.parse(imageUriStr))
+                } catch (e: Exception) {
+                    ivPicture.setImageResource(R.drawable.arenafitness) // Fallback jika error
+                }
+            } else {
+                ivPicture.setImageResource(R.drawable.arenafitness) // Default logo
+            }
         }
         cursor.close()
     }
