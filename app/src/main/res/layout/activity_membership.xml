@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_background">
+
+    <TextView
+        android:id="@+id/tvMembershipTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:text="GET MEMBERSHIP"
+        android:textColor="@color/text_white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/tvMembershipTitle"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choose Your Plan"
+                android:textColor="@color/text_white"
+                android:textSize="18sp"
+                android:layout_marginBottom="16dp"/>
+
+            <RadioGroup
+                android:id="@+id/rgPlans"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Basic Plan -->
+                <RadioButton
+                    android:id="@+id/rbBasic"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Basic Plan - Rp 150.000 / Month"
+                    android:textColor="@color/text_white"
+                    android:padding="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="#1A1A1A"
+                    android:buttonTint="@color/primary_red"/>
+
+                <!-- Premium Plan -->
+                <RadioButton
+                    android:id="@+id/rbPremium"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Premium Plan - Rp 400.000 / 3 Months"
+                    android:textColor="@color/text_white"
+                    android:padding="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="#1A1A1A"
+                    android:buttonTint="@color/primary_red"/>
+
+                <!-- VIP Plan -->
+                <RadioButton
+                    android:id="@+id/rbVIP"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="VIP Plan - Rp 1.200.000 / Year"
+                    android:textColor="@color/text_white"
+                    android:padding="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="#1A1A1A"
+                    android:buttonTint="@color/primary_red"/>
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Payment Method"
+                android:textColor="@color/text_white"
+                android:textSize="18sp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"/>
+
+            <Spinner
+                android:id="@+id/spinnerPayment"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="#1A1A1A"
+                android:padding="8dp"
+                android:entries="@array/payment_methods"/>
+
+            <Button
+                android:id="@+id/btnSubscribe"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="48dp"
+                android:text="SUBSCRIBE NOW"
+                android:backgroundTint="@color/primary_red" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1A1A1A"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white"
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
