@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">arenafitness</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string-array name="payment_methods">
+        <item>Bank Transfer</item>
+        <item>E-Wallet (Dana/OVO/Gopay)</item>
+        <item>Cash at Gym</item>
+    </string-array>
+</resources>

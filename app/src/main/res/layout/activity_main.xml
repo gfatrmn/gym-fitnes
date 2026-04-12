@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_background"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tvBrand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="KINETICNOIR"
+        android:textColor="@color/accent_copper"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Logo Bulat menggunakan ShapeableImageView agar benar-benar bulat sempurna -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/logoIv"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/arenafitness"
+        android:scaleType="centerCrop"
+        android:background="#1A1A1A"
+        android:padding="2dp"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
+        app:layout_constraintBottom_toTopOf="@+id/tvMainTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvBrand"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:contentDescription="Arena Fitness Logo" />
+
+    <TextView
+        android:id="@+id/tvMainTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:lineSpacingExtra="8dp"
+        android:text="TRAIN HARD.\nLIVE STRONGER."
+        android:textColor="@color/text_white"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvSubTitle"
+        app:layout_constraintTop_toBottomOf="@+id/logoIv" />
+
+    <TextView
+        android:id="@+id/tvSubTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="PEAK PERFORMANCE TRACKING FOR\nTHE UNCOMPROMISING ATHLETE"
+        android:textColor="@color/text_gray"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnGetStarted"
+        app:layout_constraintTop_toBottomOf="@+id/tvMainTitle" />
+
+    <Button
+        android:id="@+id/btnGetStarted"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/primary_red"
+        android:text="GET STARTED"
+        android:textColor="@color/text_white"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/btnAlreadyAccount" />
+
+    <Button
+        android:id="@+id/btnAlreadyAccount"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginBottom="32dp"
+        android:text="I ALREADY HAVE AN ACCOUNT"
+        android:textColor="@color/text_white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:strokeColor="@color/text_gray" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
