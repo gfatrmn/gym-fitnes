@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="dark_background">#0A0A0A</color>
+    <color name="light_background">#FFFFFF</color>
     <color name="primary_red">#E30613</color>
     <color name="primary_dark">#B00510</color>
     <color name="accent_copper">#C67C4E</color>
-    <color name="text_white">#FFFFFF</color>
-    <color name="text_gray">#9E9E9E</color>
-    <color name="dark_gray">#333333</color>
+    <color name="text_black">#212121</color>
+    <color name="text_gray">#757575</color>
+    <color name="light_gray">#E0E0E0</color>
+    <color name="card_background_light">#F5F5F5</color>
+    <color name="nav_background_light">#FAFAFA</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+
+    <!-- Semantic mapping for Light Mode -->
+    <color name="bg_main">@color/white</color>
+    <color name="text_primary">@color/text_black</color>
+    <color name="text_secondary">@color/text_gray</color>
+
+    <!-- Maintain compatibility but fix specific values -->
+    <color name="dark_background">@color/white</color>
+    <color name="text_white">@color/text_black</color> <!-- Many text views use this -->
+    <color name="dark_gray">@color/light_gray</color>
 </resources>

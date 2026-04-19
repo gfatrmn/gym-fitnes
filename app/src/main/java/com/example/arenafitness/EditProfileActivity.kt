@@ -8,6 +8,11 @@ import android.os.Bundle
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.arenafitness.network.RetrofitClient
+import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 class EditProfileActivity : AppCompatActivity() {
@@ -15,12 +20,17 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var dbHelper: DatabaseHelper
     private var userId: Int = -1
     private var selectedImageUri: Uri? = null
-    private var isPictureLocked: Boolean = false
+    private var isPictureLocked: Boolean = false 
+    private var pictureChangeCount: Int = 0
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
-            selectedImageUri = it
-            findViewById<ImageView>(R.id.ivEditProfilePicture).setImageURI(it)
+            val internalUri = saveImageToInternalStorage(it)
+            if (internalUri != null) {
+                selectedImageUri = internalUri
+                findViewById<ImageView>(R.id.ivEditProfilePicture).setImageURI(internalUri)
+                Toast.makeText(this, "Foto terpilih", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -56,7 +66,7 @@ class EditProfileActivity : AppCompatActivity() {
             val day = calendar.get(Calendar.DAY_OF_MONTH)
 
             DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-                val date = "$selectedYear-${selectedMonth + 1}-$selectedDay"
+                val date = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
                 etEditBirthDate.setText(date)
             }, year, month, day).show()
         }
@@ -67,17 +77,17 @@ class EditProfileActivity : AppCompatActivity() {
         // Image Picking Logic
         cvEditProfile.setOnClickListener {
             if (isPictureLocked) {
-                Toast.makeText(this, "Foto profil hanya dapat diganti satu kali saja", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Batas ganti foto profil telah tercapai (Maksimal 1 kali ganti)", Toast.LENGTH_SHORT).show()
             } else {
                 pickImageLauncher.launch("image/*")
             }
         }
 
         btnSaveProfile.setOnClickListener {
-            val name = etEditFullName.text.toString()
-            val email = etEditEmail.text.toString()
+            val name = etEditFullName.text.toString().trim()
+            val email = etEditEmail.text.toString().trim().lowercase()
             val birthDate = etEditBirthDate.text.toString()
-            val gender = spinnerEditGender.selectedItem.toString()
+            val gender = if (spinnerEditGender.selectedItem.toString() == "Laki-laki") "Male" else "Female"
             val address = etEditAddress.text.toString()
 
             if (name.isNotEmpty() && email.isNotEmpty()) {
@@ -85,6 +95,22 @@ class EditProfileActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Nama dan Email tidak boleh kosong", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun saveImageToInternalStorage(uri: Uri): Uri? {
+        return try {
+            val inputStream = contentResolver.openInputStream(uri)
+            val fileName = "profile_pic_${userId}_${System.currentTimeMillis()}.jpg"
+            val file = File(filesDir, fileName)
+            val outputStream = FileOutputStream(file)
+            inputStream?.copyTo(outputStream)
+            outputStream.close()
+            inputStream?.close()
+            Uri.fromFile(file)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 
@@ -114,13 +140,19 @@ class EditProfileActivity : AppCompatActivity() {
             
             val imageUriStr = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_IMAGE_URI))
             if (!imageUriStr.isNullOrEmpty()) {
-                ivPicture.setImageURI(Uri.parse(imageUriStr))
+                try {
+                    val uri = Uri.parse(imageUriStr)
+                    ivPicture.setImageURI(uri)
+                } catch (e: Exception) {
+                    ivPicture.setImageDrawable(null)
+                }
             }
 
+            pictureChangeCount = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_PICTURE_CHANGE_COUNT))
             isPictureLocked = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_PICTURE_LOCKED)) == 1
             
             val gender = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_GENDER))
-            val displayGender = if (gender == "Male") "Laki-laki" else if (gender == "Female") "Perempuan" else gender
+            val displayGender = if (gender == "Male") "Laki-laki" else if (gender == "Female") "Perempuan" else "Laki-laki"
             val genderIndex = genders.indexOf(displayGender)
             if (genderIndex >= 0) spinner.setSelection(genderIndex)
         }
@@ -136,10 +168,14 @@ class EditProfileActivity : AppCompatActivity() {
             put(DatabaseHelper.COLUMN_USER_GENDER, gender)
             put(DatabaseHelper.COLUMN_USER_ADDRESS, address)
             
-            // Jika memilih gambar baru, simpan dan kunci
             selectedImageUri?.let {
                 put(DatabaseHelper.COLUMN_USER_IMAGE_URI, it.toString())
-                put(DatabaseHelper.COLUMN_USER_PICTURE_LOCKED, 1)
+                
+                val newCount = pictureChangeCount + 1
+                put(DatabaseHelper.COLUMN_USER_PICTURE_CHANGE_COUNT, newCount)
+                if (newCount >= 2) {
+                    put(DatabaseHelper.COLUMN_USER_PICTURE_LOCKED, 1)
+                }
             }
         }
 

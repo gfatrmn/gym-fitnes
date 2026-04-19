@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_background">
+    android:background="@color/light_background">
 
     <TextView
         android:id="@+id/tvMembershipTitle"
@@ -12,16 +12,28 @@
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
         android:text="GET MEMBERSHIP"
-        android:textColor="@color/text_white"
+        android:textColor="@color/text_black"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <TextView
+        android:id="@+id/tvUserEmailMembership"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="4dp"
+        android:text="user@example.com"
+        android:textColor="@color/text_gray"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/tvMembershipTitle"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/tvMembershipTitle"
+        app:layout_constraintTop_toBottomOf="@id/tvUserEmailMembership"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation">
 
         <LinearLayout
@@ -30,81 +42,218 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- Current Membership Section -->
+            <LinearLayout
+                android:id="@+id/llCurrentMembership"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Choose Your Plan"
-                android:textColor="@color/text_white"
-                android:textSize="18sp"
-                android:layout_marginBottom="16dp"/>
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginBottom="24dp">
 
-            <RadioGroup
-                android:id="@+id/rgPlans"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Membership Saat Ini"
+                    android:textColor="@color/text_black"
+                    android:textSize="18sp"
+                    android:layout_marginBottom="16dp"/>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/card_background_light"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+                        <TextView
+                            android:id="@+id/tvCurrentPlanName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Plan Name"
+                            android:textColor="@color/text_black"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvCurrentPlanExpiry"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Expires on: -"
+                            android:textColor="@color/accent_copper"
+                            android:textSize="14sp" />
+
+                        <Button
+                            android:id="@+id/btnStopMembership"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:text="BERHENTI BERLANGGANAN"
+                            android:backgroundTint="#FF4444"
+                            android:textColor="@color/white" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/light_gray"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="24dp" />
+            </LinearLayout>
+
+            <!-- Subscribe Section -->
+            <LinearLayout
+                android:id="@+id/llSubscribeSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Basic Plan -->
-                <RadioButton
-                    android:id="@+id/rbBasic"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pilih Membership mu"
+                    android:textColor="@color/text_black"
+                    android:textSize="18sp"
+                    android:layout_marginBottom="16dp"/>
+
+                <RadioGroup
+                    android:id="@+id/rgPlans"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Basic Plan - Rp 150.000 / Month"
-                    android:textColor="@color/text_white"
-                    android:padding="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="#1A1A1A"
-                    android:buttonTint="@color/primary_red"/>
+                    android:orientation="vertical">
 
-                <!-- Premium Plan -->
-                <RadioButton
-                    android:id="@+id/rbPremium"
+                    <RadioButton
+                        android:id="@+id/rbDaily"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Harian - Rp 10.000 / Hari"
+                        android:textColor="@color/text_black"
+                        android:padding="16dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@color/card_background_light"
+                        android:buttonTint="@color/primary_red"/>
+
+                    <RadioButton
+                        android:id="@+id/rbMonthly"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Bulanan - Rp 100.000 / Bulan"
+                        android:textColor="@color/text_black"
+                        android:padding="16dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@color/card_background_light"
+                        android:buttonTint="@color/primary_red"/>
+
+                </RadioGroup>
+
+                <!-- CheckBox Integration -->
+                <CheckBox
+                    android:id="@+id/cbTerms"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Premium Plan - Rp 400.000 / 3 Months"
-                    android:textColor="@color/text_white"
-                    android:padding="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="#1A1A1A"
-                    android:buttonTint="@color/primary_red"/>
+                    android:layout_marginTop="16dp"
+                    android:text="Saya setuju dengan syarat dan ketentuan"
+                    android:textColor="@color/text_black"
+                    android:buttonTint="@color/primary_red" />
 
-                <!-- VIP Plan -->
-                <RadioButton
-                    android:id="@+id/rbVIP"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Payment Method"
+                    android:textColor="@color/text_black"
+                    android:textSize="18sp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"/>
+
+                <Spinner
+                    android:id="@+id/spinnerPayment"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@color/card_background_light"
+                    android:padding="8dp"
+                    android:entries="@array/payment_methods"/>
+
+                <!-- Payment Details Info -->
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="VIP Plan - Rp 1.200.000 / Year"
-                    android:textColor="@color/text_white"
-                    android:padding="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="#1A1A1A"
-                    android:buttonTint="@color/primary_red"/>
-            </RadioGroup>
+                    android:layout_marginTop="16dp"
+                    app:cardBackgroundColor="#FFF9C4"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Payment Destination:"
+                            android:textColor="@color/black"
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Bank: BCA 1234567890 (Arena Fitness Kediri)"
+                            android:textColor="@color/black"
+                            android:textSize="13sp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="E-Wallet: 081234567890 (Arena Fitness Kediri)"
+                            android:textColor="@color/black"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Payment Method"
-                android:textColor="@color/text_white"
-                android:textSize="18sp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"/>
+                <!-- Payment Proof Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Payment Proof (Click image to upload)"
+                    android:textColor="@color/text_black"
+                    android:textSize="18sp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="16dp"/>
 
-            <Spinner
-                android:id="@+id/spinnerPayment"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:background="#1A1A1A"
-                android:padding="8dp"
-                android:entries="@array/payment_methods"/>
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cvPaymentProof"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    app:cardBackgroundColor="@color/card_background_light"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
-            <Button
-                android:id="@+id/btnSubscribe"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="48dp"
-                android:text="SUBSCRIBE NOW"
-                android:backgroundTint="@color/primary_red" />
+                    <ImageView
+                        android:id="@+id/ivPaymentProof"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerInside"
+                        android:src="@android:drawable/ic_menu_camera"
+                        android:padding="40dp"
+                        app:tint="@color/text_gray" />
+                </androidx.cardview.widget.CardView>
+
+                <Button
+                    android:id="@+id/btnSubscribe"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="32dp"
+                    android:text="SUBSCRIBE NOW"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/primary_red" />
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
@@ -113,9 +262,9 @@
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#1A1A1A"
-        app:itemIconTint="@color/white"
-        app:itemTextColor="@color/white"
+        android:background="@color/nav_background_light"
+        app:itemIconTint="@color/primary_red"
+        app:itemTextColor="@color/text_black"
         app:menu="@menu/bottom_nav_menu"
         app:layout_constraintBottom_toBottomOf="parent" />
 

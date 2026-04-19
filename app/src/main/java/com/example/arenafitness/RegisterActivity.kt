@@ -4,13 +4,15 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import java.text.SimpleDateFormat
-import java.util.*
+import androidx.lifecycle.lifecycleScope
+import com.example.arenafitness.network.RetrofitClient
+import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var dbHelper: DatabaseHelper
@@ -39,66 +41,62 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            if (phone.length < 11 || phone.length > 12) {
-                Toast.makeText(this, "Phone number must be 11-12 digits", Toast.LENGTH_SHORT).show()
+            if (phone.length < 11 || phone.length > 13) {
+                Toast.makeText(this, "Phone number must be 11-13 digits", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val db = dbHelper.writableDatabase
-            val cursor = db.query(
-                DatabaseHelper.TABLE_USERS,
-                null,
-                "${DatabaseHelper.COLUMN_USER_EMAIL} = ?",
-                arrayOf(email),
-                null, null, null
-            )
+            btnRegister.isEnabled = false
+            lifecycleScope.launch {
+                try {
+                    Log.d("RegisterActivity", "Registering with: $name, $phone, $email")
+                    
+                    val response = RetrofitClient.instance.register(name, phone, email, pass)
 
-            if (cursor.count > 0) {
-                Toast.makeText(this, "Email already exists!", Toast.LENGTH_SHORT).show()
-                cursor.close()
-            } else {
-                cursor.close()
-                val values = ContentValues().apply {
-                    put(DatabaseHelper.COLUMN_USER_NAME, name)
-                    put(DatabaseHelper.COLUMN_USER_PHONE, phone)
-                    put(DatabaseHelper.COLUMN_USER_EMAIL, email)
-                    put(DatabaseHelper.COLUMN_USER_PASSWORD, pass)
-                    put(DatabaseHelper.COLUMN_USER_IS_MEMBER, 1)
-                }
+                    if (response.isSuccessful) {
+                        val body = response.body()
+                        if (body?.status?.lowercase() == "success") {
+                            // Jika registrasi di server sukses, simpan ke database lokal
+                            saveToLocalDatabase(name, phone, email, pass)
 
-                val newRowId = db.insert(DatabaseHelper.TABLE_USERS, null, values)
-
-                if (newRowId != -1L) {
-                    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                    val startDate = Calendar.getInstance()
-                    val endDate = Calendar.getInstance()
-                    endDate.add(Calendar.DAY_OF_YEAR, 30)
-
-                    val membershipValues = ContentValues().apply {
-                        put(DatabaseHelper.COLUMN_UM_USER_ID, newRowId.toInt())
-                        put(DatabaseHelper.COLUMN_UM_PLAN_ID, 1)
-                        put(DatabaseHelper.COLUMN_UM_START_DATE, sdf.format(startDate.time))
-                        put(DatabaseHelper.COLUMN_UM_END_DATE, sdf.format(endDate.time))
-                        put(DatabaseHelper.COLUMN_UM_STATUS, "active")
+                            Toast.makeText(this@RegisterActivity, "Registration Successful!", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this@RegisterActivity, LoginActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            val errorMsg = body?.message ?: "Registration Failed"
+                            Toast.makeText(this@RegisterActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        val errorBody = response.errorBody()?.string()
+                        Log.e("RegisterActivity", "Response failed. Code: ${response.code()}, Error: $errorBody")
+                        Toast.makeText(this@RegisterActivity, "Server Error: $errorBody", Toast.LENGTH_SHORT).show()
                     }
-                    db.insert(DatabaseHelper.TABLE_USER_MEMBERSHIPS, null, membershipValues)
-
-                    // PERBAIKAN: Setelah sukses registrasi, pindah ke LoginActivity
-                    Toast.makeText(this, "Registration Successful! Please Login.", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, LoginActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    finish()
-                } else {
-                    Toast.makeText(this, "Registration Failed!", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Log.e("RegisterActivity", "Exception during register", e)
+                    Toast.makeText(this@RegisterActivity, "Connection Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                } finally {
+                    btnRegister.isEnabled = true
                 }
             }
         }
 
-        tvLoginLink.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
+        tvLoginLink.setOnClickListener { finish() }
+    }
+
+    private fun saveToLocalDatabase(name: String, phone: String, email: String, pass: String) {
+        val db = dbHelper.writableDatabase
+        val values = ContentValues().apply {
+            put(DatabaseHelper.COLUMN_USER_NAME, name)
+            put(DatabaseHelper.COLUMN_USER_PHONE, phone)
+            put(DatabaseHelper.COLUMN_USER_EMAIL, email)
+            put(DatabaseHelper.COLUMN_USER_PASSWORD, pass)
+            put(DatabaseHelper.COLUMN_USER_ROLE, "member")
+            put(DatabaseHelper.COLUMN_USER_LOGIN, email.split("@")[0])
+            put(DatabaseHelper.COLUMN_USER_IS_MEMBER, 0)
         }
+
+        db.insert(DatabaseHelper.TABLE_USERS, null, values)
     }
 }

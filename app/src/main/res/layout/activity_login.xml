@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_background"
+    android:background="@color/light_background"
     android:padding="24dp">
 
     <!-- Logo Bulat menggunakan ShapeableImageView -->
@@ -17,7 +17,7 @@
         android:padding="2dp"
         android:src="@drawable/arenafitness"
         android:scaleType="centerCrop"
-        android:background="#1A1A1A"
+        android:background="@color/card_background_light"
         app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -30,14 +30,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:text="MEMBER LOGIN"
-        android:textColor="@color/text_white"
+        android:textColor="@color/text_black"
         android:textSize="28sp"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/logoIv"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/etEmail"
         android:layout_width="match_parent"
         android:layout_height="56dp"
@@ -45,9 +45,10 @@
         android:background="@drawable/bg_input_field"
         android:hint="Email Address"
         android:paddingHorizontal="16dp"
-        android:textColor="@color/text_white"
+        android:textColor="@color/text_black"
         android:textColorHint="@color/text_gray"
         android:inputType="textEmailAddress"
+        android:completionThreshold="1"
         app:layout_constraintTop_toBottomOf="@id/tvLoginTitle" />
 
     <EditText
@@ -59,7 +60,7 @@
         android:hint="Password"
         android:inputType="textPassword"
         android:paddingHorizontal="16dp"
-        android:textColor="@color/text_white"
+        android:textColor="@color/text_black"
         android:textColorHint="@color/text_gray"
         app:layout_constraintTop_toBottomOf="@id/etEmail" />
 
@@ -70,6 +71,7 @@
         android:layout_marginTop="32dp"
         android:backgroundTint="@color/primary_red"
         android:text="SIGN IN"
+        android:textColor="@color/white"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/etPassword" />
 

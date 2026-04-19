@@ -1,14 +1,41 @@
 package com.example.arenafitness
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class HistoryActivity : AppCompatActivity() {
+    private lateinit var dbHelper: DatabaseHelper
+    private var userId: Int = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
+
+        dbHelper = DatabaseHelper(this)
+        val sharedPref = getSharedPreferences("UserSession", Context.MODE_PRIVATE)
+        userId = sharedPref.getInt("USER_ID", -1)
+
+        val rvHistory = findViewById<RecyclerView>(R.id.rvHistory)
+        val tvEmpty = findViewById<TextView>(R.id.tvEmptyHistory)
+
+        rvHistory.layoutManager = LinearLayoutManager(this)
+        
+        val historyList = getHistoryFromDatabase()
+        if (historyList.isEmpty()) {
+            tvEmpty.visibility = View.VISIBLE
+            rvHistory.visibility = View.GONE
+        } else {
+            tvEmpty.visibility = View.GONE
+            rvHistory.visibility = View.VISIBLE
+            rvHistory.adapter = HistoryAdapter(historyList)
+        }
 
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         bottomNavigation.selectedItemId = R.id.navigation_history
@@ -37,5 +64,29 @@ class HistoryActivity : AppCompatActivity() {
                 else -> false
             }
         }
+    }
+
+    private fun getHistoryFromDatabase(): List<CheckInRecord> {
+        val list = mutableListOf<CheckInRecord>()
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(
+            DatabaseHelper.TABLE_CHECK_INS,
+            null,
+            "${DatabaseHelper.COLUMN_CI_USER_ID} = ?",
+            arrayOf(userId.toString()),
+            null, null, "${DatabaseHelper.COLUMN_CI_ID} DESC"
+        )
+
+        if (cursor.moveToFirst()) {
+            do {
+                val id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CI_ID))
+                val uId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CI_USER_ID))
+                val date = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CI_DATE))
+                val time = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CI_TIME))
+                list.add(CheckInRecord(id, uId, date, time))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return list
     }
 }
