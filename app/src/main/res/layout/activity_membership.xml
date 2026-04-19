@@ -18,10 +18,22 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <TextView
+        android:id="@+id/tvUserEmailMembership"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="4dp"
+        android:text="user@example.com"
+        android:textColor="@color/text_gray"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/tvMembershipTitle"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/tvMembershipTitle"
+        app:layout_constraintTop_toBottomOf="@id/tvUserEmailMembership"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation">
 
         <LinearLayout
@@ -139,6 +151,16 @@
 
                 </RadioGroup>
 
+                <!-- CheckBox Integration -->
+                <CheckBox
+                    android:id="@+id/cbTerms"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Saya setuju dengan syarat dan ketentuan"
+                    android:textColor="@color/text_black"
+                    android:buttonTint="@color/primary_red" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -180,14 +202,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Bank: BCA 1234567890 (Arena Fitness)"
+                            android:text="Bank: BCA 1234567890 (Arena Fitness Kediri)"
                             android:textColor="@color/black"
                             android:textSize="13sp" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="E-Wallet: 081234567890 (Arena Fitness)"
+                            android:text="E-Wallet: 081234567890 (Arena Fitness Kediri)"
                             android:textColor="@color/black"
                             android:textSize="13sp" />
                     </LinearLayout>

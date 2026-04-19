@@ -40,7 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="LOADING..."
+                android:text=""
                 android:textColor="@color/text_black"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -58,18 +58,39 @@
                 app:layout_constraintTop_toBottomOf="@id/tvHomeMemberName"
                 app:layout_constraintStart_toStartOf="@id/tvHomeMemberName" />
 
+            <!-- ListView Section (Schedule Recommendations) -->
+            <TextView
+                android:id="@+id/tvListViewTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="SUGGESTED SCHEDULE (ListView)"
+                android:textColor="@color/text_black"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/cvProfile"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ListView
+                android:id="@+id/lvClasses"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/card_background_light"
+                app:layout_constraintTop_toBottomOf="@id/tvListViewTitle" />
+
             <!-- Check In Section -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cvCheckIn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="24dp"
                 app:cardBackgroundColor="@color/primary_red"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp"
                 android:clickable="true"
                 android:focusable="true"
-                app:layout_constraintTop_toBottomOf="@id/cvProfile">
+                app:layout_constraintTop_toBottomOf="@id/lvClasses">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -113,7 +134,7 @@
                 android:id="@+id/tvIdTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="24dp"
                 android:text="DIGITAL MEMBER ID"
                 android:textColor="@color/text_black"
                 android:textSize="14sp"
@@ -123,8 +144,8 @@
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cvQrCode"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
+                android:layout_width="160dp"
+                android:layout_height="160dp"
                 android:layout_marginTop="16dp"
                 app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="12dp"
@@ -152,17 +173,25 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
+            <!-- Fragment Container -->
+            <FrameLayout
+                android:id="@+id/fragmentContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                app:layout_constraintTop_toBottomOf="@id/tvQrLabel" />
+
             <!-- Announcement Section -->
             <TextView
                 android:id="@+id/tvAnnTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="24dp"
                 android:text="GYM ANNOUNCEMENTS"
                 android:textColor="@color/text_black"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                app:layout_constraintTop_toBottomOf="@id/tvQrLabel"
+                app:layout_constraintTop_toBottomOf="@id/fragmentContainer"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <androidx.cardview.widget.CardView

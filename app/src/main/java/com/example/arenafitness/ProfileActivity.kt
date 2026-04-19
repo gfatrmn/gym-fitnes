@@ -8,11 +8,23 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ProfileActivity : AppCompatActivity() {
     private lateinit var dbHelper: DatabaseHelper
     private var userId: Int = -1
+
+    private lateinit var ivProfilePicture: ImageView
+    private lateinit var tvProfileName: TextView
+    private lateinit var tvProfileEmail: TextView
+    private lateinit var tvProfilePhone: TextView
+    private lateinit var tvProfileBirthDate: TextView
+    private lateinit var tvProfileGender: TextView
+    private lateinit var tvProfileAddress: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,18 +34,16 @@ class ProfileActivity : AppCompatActivity() {
         val sharedPref = getSharedPreferences("UserSession", Context.MODE_PRIVATE)
         userId = sharedPref.getInt("USER_ID", -1)
 
-        val ivProfilePicture = findViewById<ImageView>(R.id.ivProfilePicture)
-        val tvProfileName = findViewById<TextView>(R.id.tvProfileName)
-        val tvProfileEmail = findViewById<TextView>(R.id.tvProfileEmail)
-        val tvProfilePhone = findViewById<TextView>(R.id.tvProfilePhone)
-        val tvProfileBirthDate = findViewById<TextView>(R.id.tvProfileBirthDate)
-        val tvProfileGender = findViewById<TextView>(R.id.tvProfileGender)
-        val tvProfileAddress = findViewById<TextView>(R.id.tvProfileAddress)
+        ivProfilePicture = findViewById(R.id.ivProfilePicture)
+        tvProfileName = findViewById(R.id.tvProfileName)
+        tvProfileEmail = findViewById(R.id.tvProfileEmail)
+        tvProfilePhone = findViewById(R.id.tvProfilePhone)
+        tvProfileBirthDate = findViewById(R.id.tvProfileBirthDate)
+        tvProfileGender = findViewById(R.id.tvProfileGender)
+        tvProfileAddress = findViewById(R.id.tvProfileAddress)
+        
         val btnEditProfile = findViewById<Button>(R.id.btnEditProfile)
         val btnLogout = findViewById<Button>(R.id.btnLogout)
-        
-        // Load data user lengkap
-        loadProfileData(ivProfilePicture, tvProfileName, tvProfileEmail, tvProfilePhone, tvProfileBirthDate, tvProfileGender, tvProfileAddress)
 
         // Logika klik EDIT PROFILE
         btnEditProfile.setOnClickListener {
@@ -88,25 +98,43 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun refreshProfile() {
-        val ivProfilePicture = findViewById<ImageView>(R.id.ivProfilePicture)
-        val tvProfileName = findViewById<TextView>(R.id.tvProfileName)
-        val tvProfileEmail = findViewById<TextView>(R.id.tvProfileEmail)
-        val tvProfilePhone = findViewById<TextView>(R.id.tvProfilePhone)
-        val tvProfileBirthDate = findViewById<TextView>(R.id.tvProfileBirthDate)
-        val tvProfileGender = findViewById<TextView>(R.id.tvProfileGender)
-        val tvProfileAddress = findViewById<TextView>(R.id.tvProfileAddress)
-        loadProfileData(ivProfilePicture, tvProfileName, tvProfileEmail, tvProfilePhone, tvProfileBirthDate, tvProfileGender, tvProfileAddress)
+        lifecycleScope.launch {
+            val profileData = withContext(Dispatchers.IO) {
+                getProfileData()
+            }
+            
+            profileData?.let { data ->
+                tvProfileName.text = data.name.uppercase()
+                tvProfileEmail.text = data.email
+                tvProfilePhone.text = data.phone
+                tvProfileBirthDate.text = data.birthDate
+                tvProfileGender.text = data.gender
+                tvProfileAddress.text = data.address
+
+                if (!data.imageUriStr.isNullOrEmpty()) {
+                    try {
+                        val uri = Uri.parse(data.imageUriStr)
+                        ivProfilePicture.setImageURI(uri)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        ivProfilePicture.setImageDrawable(null)
+                    }
+                }
+            }
+        }
     }
 
-    private fun loadProfileData(
-        ivPicture: ImageView,
-        tvName: TextView, 
-        tvEmail: TextView, 
-        tvPhone: TextView, 
-        tvBirth: TextView, 
-        tvGender: TextView, 
-        tvAddress: TextView
-    ) {
+    private data class ProfileData(
+        val name: String,
+        val email: String,
+        val phone: String,
+        val birthDate: String,
+        val gender: String,
+        val address: String,
+        val imageUriStr: String?
+    )
+
+    private fun getProfileData(): ProfileData? {
         val db = dbHelper.readableDatabase
         val cursor = db.query(
             DatabaseHelper.TABLE_USERS,
@@ -116,34 +144,19 @@ class ProfileActivity : AppCompatActivity() {
             null, null, null
         )
 
+        var data: ProfileData? = null
         if (cursor.moveToFirst()) {
-            val name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_NAME))
-            val email = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_EMAIL))
-            val phone = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_PHONE))
-            val birth = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_BIRTHDATE))
-            val gender = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_GENDER))
-            val address = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_ADDRESS))
-            val imageUriStr = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_IMAGE_URI))
-
-            tvName.text = name?.uppercase() ?: ""
-            tvEmail.text = email ?: ""
-            tvPhone.text = phone ?: "-"
-            tvBirth.text = birth ?: "-"
-            tvGender.text = gender ?: "-"
-            tvAddress.text = address ?: "-"
-
-            if (!imageUriStr.isNullOrEmpty()) {
-                try {
-                    val uri = Uri.parse(imageUriStr)
-                    // Pre-check permission
-                    contentResolver.openInputStream(uri)?.close()
-                    ivPicture.setImageURI(uri)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    ivPicture.setImageDrawable(null)
-                }
-            }
+            data = ProfileData(
+                name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_NAME)) ?: "",
+                email = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_EMAIL)) ?: "",
+                phone = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_PHONE)) ?: "-",
+                birthDate = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_BIRTHDATE)) ?: "-",
+                gender = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_GENDER)) ?: "-",
+                address = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_ADDRESS)) ?: "-",
+                imageUriStr = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_IMAGE_URI))
+            )
         }
         cursor.close()
+        return data
     }
 }
