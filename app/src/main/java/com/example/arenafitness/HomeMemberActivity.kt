@@ -13,21 +13,11 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.text.SimpleDateFormat
 import java.util.*
-
-class InfoFragment : Fragment() {
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(android.R.layout.simple_list_item_1, container, false)
-        view?.findViewById<TextView>(android.R.id.text1)?.text = "Tip: Stay hydrated during workouts!"
-        return view
-    }
-}
+import java.util.concurrent.TimeUnit
 
 class HomeMemberActivity : AppCompatActivity() {
     private lateinit var dbHelper: DatabaseHelper
@@ -37,13 +27,23 @@ class HomeMemberActivity : AppCompatActivity() {
 
     private lateinit var ivProfile: ImageView
     private lateinit var tvName: TextView
-    private lateinit var tvStatus: TextView
     private lateinit var cvQrContainer: CardView
     private lateinit var ivQrCode: ImageView
     private lateinit var tvQrLabel: TextView
     private lateinit var tvIdTitle: TextView
     private lateinit var tvAnnContent: TextView
     private lateinit var tvAnnDate: TextView
+
+    // Membership Card Views
+    private lateinit var tvMembershipPlanName: TextView
+    private lateinit var tvStatusBadge: TextView
+    private lateinit var pbMembershipProgress: ProgressBar
+    private lateinit var tvMembershipExpiryInfo: TextView
+    private lateinit var vStatusAccent: View
+    
+    // Stats Views
+    private lateinit var tvMonthlyVisits: TextView
+    private lateinit var tvTotalWorkouts: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,14 +56,25 @@ class HomeMemberActivity : AppCompatActivity() {
         // Initialize Views
         ivProfile = findViewById(R.id.ivHomeProfilePicture)
         tvName = findViewById(R.id.tvHomeMemberName)
-        tvStatus = findViewById(R.id.tvHomeMemberStatus)
-        val cvCheckIn = findViewById<CardView>(R.id.cvCheckIn)
+        val cvMembershipStatus = findViewById<CardView>(R.id.cvMembershipStatus)
+        val btnQuickCheckIn = findViewById<CardView>(R.id.btnQuickCheckIn)
         cvQrContainer = findViewById(R.id.cvQrCode)
         ivQrCode = findViewById(R.id.ivQrCode)
         tvQrLabel = findViewById(R.id.tvQrLabel)
         tvIdTitle = findViewById(R.id.tvIdTitle)
         tvAnnContent = findViewById(R.id.tvAnnContent)
         tvAnnDate = findViewById(R.id.tvAnnDate)
+
+        // Membership Card Views
+        tvMembershipPlanName = findViewById(R.id.tvMembershipPlanName)
+        tvStatusBadge = findViewById(R.id.tvStatusBadge)
+        pbMembershipProgress = findViewById(R.id.pbMembershipProgress)
+        tvMembershipExpiryInfo = findViewById(R.id.tvMembershipExpiryInfo)
+        vStatusAccent = findViewById(R.id.vStatusAccent)
+
+        // Stats Views
+        tvMonthlyVisits = findViewById(R.id.tvMonthlyVisits)
+        tvTotalWorkouts = findViewById(R.id.tvTotalWorkouts)
 
         // ListView Implementation
         val lvClasses = findViewById<ListView>(R.id.lvClasses)
@@ -97,24 +108,16 @@ class HomeMemberActivity : AppCompatActivity() {
             popup.show()
         }
 
-        // Fragment Transaction
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, InfoFragment())
-            .commit()
-
         // Load Data
         refreshHomeData()
 
         // Check-In Logic
-        cvCheckIn?.setOnClickListener {
-            when (membershipStatus) {
-                "active" -> showTimePickerAndCheckIn()
-                "pending" -> Toast.makeText(this, "Membership Anda sedang menunggu validasi kasir.", Toast.LENGTH_LONG).show()
-                else -> {
-                    Toast.makeText(this, "Hanya member aktif yang dapat melakukan Check-In", Toast.LENGTH_LONG).show()
-                    startActivity(Intent(this, MembershipActivity::class.java))
-                }
-            }
+        cvMembershipStatus?.setOnClickListener {
+            handleCheckInClick()
+        }
+        
+        btnQuickCheckIn?.setOnClickListener {
+            handleCheckInClick()
         }
 
         // Bottom Navigation
@@ -148,6 +151,17 @@ class HomeMemberActivity : AppCompatActivity() {
         }
     }
 
+    private fun handleCheckInClick() {
+        when (membershipStatus) {
+            "active" -> showTimePickerAndCheckIn()
+            "pending" -> Toast.makeText(this, "Membership Anda sedang menunggu validasi kasir.", Toast.LENGTH_LONG).show()
+            else -> {
+                Toast.makeText(this, "Hanya member aktif yang dapat melakukan Check-In", Toast.LENGTH_LONG).show()
+                startActivity(Intent(this, MembershipActivity::class.java))
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         refreshHomeData()
@@ -155,6 +169,7 @@ class HomeMemberActivity : AppCompatActivity() {
 
     private fun refreshHomeData() {
         loadHeaderData()
+        loadStats()
         
         if (membershipStatus == "active") {
             tvIdTitle.visibility = View.VISIBLE
@@ -253,7 +268,7 @@ class HomeMemberActivity : AppCompatActivity() {
             cursor?.close()
         }
 
-        val membershipQuery = "SELECT p.${DatabaseHelper.COLUMN_PLAN_NAME}, m.${DatabaseHelper.COLUMN_UM_END_DATE}, m.${DatabaseHelper.COLUMN_UM_STATUS} " +
+        val membershipQuery = "SELECT p.${DatabaseHelper.COLUMN_PLAN_NAME}, m.${DatabaseHelper.COLUMN_UM_START_DATE}, m.${DatabaseHelper.COLUMN_UM_END_DATE}, m.${DatabaseHelper.COLUMN_UM_STATUS} " +
                 "FROM ${DatabaseHelper.TABLE_USER_MEMBERSHIPS} m " +
                 "JOIN ${DatabaseHelper.TABLE_PLANS} p ON m.${DatabaseHelper.COLUMN_UM_PLAN_ID} = p.${DatabaseHelper.COLUMN_PLAN_ID} " +
                 "WHERE m.${DatabaseHelper.COLUMN_UM_USER_ID} = ? " +
@@ -263,36 +278,106 @@ class HomeMemberActivity : AppCompatActivity() {
         try {
             if (mCursor != null && mCursor.moveToFirst()) {
                 val planName = mCursor.getString(0) ?: "Unknown"
-                val endDate = mCursor.getString(1) ?: "-"
-                val status = mCursor.getString(2) ?: "none"
+                val startDate = mCursor.getString(1) ?: ""
+                val endDate = mCursor.getString(2) ?: ""
+                val status = mCursor.getString(3) ?: "none"
                 membershipStatus = status
 
+                tvMembershipPlanName.text = "$planName Active"
+                
                 when (status) {
                     "active" -> {
-                        tvStatus.text = "$planName MEMBER • Expires: $endDate"
-                        tvStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_copper))
                         isMember = true
+                        tvStatusBadge.text = "Aktif"
+                        tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.membership_badge_text))
+                        tvStatusBadge.backgroundTintList = ContextCompat.getColorStateList(this, R.color.membership_badge_bg)
+                        vStatusAccent.setBackgroundColor(ContextCompat.getColor(this, R.color.membership_accent_green))
+                        pbMembershipProgress.progressTintList = ContextCompat.getColorStateList(this, R.color.membership_accent_green)
+                        
+                        updateMembershipProgress(startDate, endDate)
                     }
                     "pending" -> {
-                        tvStatus.text = "PENDING VALIDASI KASIR"
-                        tvStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_orange_dark))
                         isMember = false
+                        tvStatusBadge.text = "Pending"
+                        tvStatusBadge.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+                        tvStatusBadge.backgroundTintList = ContextCompat.getColorStateList(this, android.R.color.holo_orange_dark)
+                        vStatusAccent.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_orange_dark))
+                        tvMembershipExpiryInfo.text = "Menunggu validasi kasir"
+                        pbMembershipProgress.progress = 0
                     }
                     else -> {
-                        tvStatus.text = "NON-MEMBER • INACTIVE"
-                        tvStatus.setTextColor(ContextCompat.getColor(this, R.color.text_gray))
                         isMember = false
+                        tvStatusBadge.text = "Inactive"
+                        tvMembershipExpiryInfo.text = "Belum memiliki membership aktif"
+                        vStatusAccent.setBackgroundColor(ContextCompat.getColor(this, R.color.text_gray))
+                        pbMembershipProgress.progress = 0
                     }
                 }
             } else {
-                tvStatus.text = "NON-MEMBER • INACTIVE"
-                tvStatus.setTextColor(ContextCompat.getColor(this, R.color.text_gray))
+                tvMembershipPlanName.text = "Premium Active" // Default as requested
+                tvStatusBadge.text = "Aktif"
+                tvStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.membership_badge_text))
+                tvStatusBadge.backgroundTintList = ContextCompat.getColorStateList(this, R.color.membership_badge_bg)
+                tvMembershipExpiryInfo.text = "Berakhir: 15 Juni 2025 · 55 hari tersisa"
                 membershipStatus = "none"
                 isMember = false
+                vStatusAccent.setBackgroundColor(ContextCompat.getColor(this, R.color.membership_accent_green))
+                pbMembershipProgress.progress = 65
             }
         } finally {
             mCursor?.close()
         }
+    }
+
+    private fun updateMembershipProgress(startDateStr: String, endDateStr: String) {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        try {
+            val startDate = sdf.parse(startDateStr) ?: Date()
+            val endDate = sdf.parse(endDateStr) ?: Date()
+            val today = Date()
+
+            val totalDuration = endDate.time - startDate.time
+            val elapsed = today.time - startDate.time
+            
+            if (totalDuration > 0) {
+                val progress = (elapsed.toFloat() / totalDuration.toFloat() * 100).toInt()
+                pbMembershipProgress.progress = progress.coerceIn(0, 100)
+            }
+
+            val diffInMs = endDate.time - today.time
+            val daysLeft = TimeUnit.MILLISECONDS.toDays(diffInMs)
+            
+            val displaySdf = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+            val formattedEndDate = displaySdf.format(endDate)
+            
+            tvMembershipExpiryInfo.text = "Berakhir: $formattedEndDate · $daysLeft hari tersisa"
+        } catch (e: Exception) {
+            tvMembershipExpiryInfo.text = "Berakhir: $endDateStr"
+        }
+    }
+
+    private fun loadStats() {
+        val db = dbHelper.readableDatabase
+        
+        // Total Workouts
+        val totalQuery = "SELECT COUNT(*) FROM ${DatabaseHelper.TABLE_CHECK_INS} WHERE ${DatabaseHelper.COLUMN_CI_USER_ID} = ?"
+        val totalCursor = db.rawQuery(totalQuery, arrayOf(userId.toString()))
+        if (totalCursor.moveToFirst()) {
+            tvTotalWorkouts.text = totalCursor.getInt(0).toString()
+        }
+        totalCursor.close()
+
+        // Monthly Visits
+        val sdfMonth = SimpleDateFormat("MMM yyyy", Locale.getDefault())
+        val currentMonthYear = sdfMonth.format(Date()) // e.g., "Oct 2023"
+        
+        val monthlyQuery = "SELECT COUNT(*) FROM ${DatabaseHelper.TABLE_CHECK_INS} " +
+                "WHERE ${DatabaseHelper.COLUMN_CI_USER_ID} = ? AND ${DatabaseHelper.COLUMN_CI_DATE} LIKE ?"
+        val monthlyCursor = db.rawQuery(monthlyQuery, arrayOf(userId.toString(), "%$currentMonthYear"))
+        if (monthlyCursor.moveToFirst()) {
+            tvMonthlyVisits.text = monthlyCursor.getInt(0).toString()
+        }
+        monthlyCursor.close()
     }
 
     private fun loadAnnouncement() {

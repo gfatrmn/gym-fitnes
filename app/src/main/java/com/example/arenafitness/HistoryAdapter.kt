@@ -5,13 +5,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.text.SimpleDateFormat
+import java.util.*
 
 class HistoryAdapter(private val historyList: List<CheckInRecord>) :
     RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvDate: TextView = view.findViewById(R.id.tvHistoryDate)
-        val tvTime: TextView = view.findViewById(R.id.tvHistoryTime)
+        val tvDateFull: TextView = view.findViewById(R.id.tvHistoryDateFull)
+        val tvType: TextView = view.findViewById(R.id.tvHistoryType)
+        val tvStartTime: TextView = view.findViewById(R.id.tvHistoryStartTime)
+        val tvEndTime: TextView = view.findViewById(R.id.tvHistoryEndTime)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -22,8 +26,30 @@ class HistoryAdapter(private val historyList: List<CheckInRecord>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val record = historyList[position]
-        holder.tvDate.text = record.date
-        holder.tvTime.text = record.time
+        
+        // Format tanggal: Senin, 21 Apr 2025
+        holder.tvDateFull.text = formatDate(record.date)
+        
+        // Dummy data untuk tipe latihan sesuai gambar
+        val types = arrayOf("Yoga Morning", "Cardio Mandiri", "HIIT Sore", "Strength Training", "Zumba")
+        val randomType = types[record.id % types.size]
+        holder.tvType.text = "$randomType - 1j 30m"
+        
+        holder.tvStartTime.text = record.time
+        
+        // Dummy end time
+        holder.tvEndTime.text = "s/d --:--" 
+    }
+
+    private fun formatDate(dateStr: String): String {
+        return try {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val outputFormat = SimpleDateFormat("EEEE, d MMM yyyy", Locale("id", "ID"))
+            val date = inputFormat.parse(dateStr)
+            outputFormat.format(date ?: Date())
+        } catch (e: Exception) {
+            dateStr
+        }
     }
 
     override fun getItemCount(): Int = historyList.size

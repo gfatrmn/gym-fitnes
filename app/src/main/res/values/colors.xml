@@ -12,13 +12,21 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
 
+    <!-- Membership Theme Integrated with Project Style (Light Version) -->
+    <color name="membership_card_bg">@color/white</color>
+    <color name="membership_accent">@color/accent_copper</color>
+    <color name="membership_accent_green">#4CAF50</color>
+    <color name="membership_badge_bg">#DCF8E5</color>
+    <color name="membership_badge_text">#1B5E20</color>
+    <color name="membership_text_secondary">@color/text_gray</color>
+
     <!-- Semantic mapping for Light Mode -->
     <color name="bg_main">@color/white</color>
     <color name="text_primary">@color/text_black</color>
     <color name="text_secondary">@color/text_gray</color>
 
-    <!-- Maintain compatibility but fix specific values -->
+    <!-- Maintain compatibility -->
     <color name="dark_background">@color/white</color>
-    <color name="text_white">@color/text_black</color> <!-- Many text views use this -->
+    <color name="text_white">@color/text_black</color>
     <color name="dark_gray">@color/light_gray</color>
 </resources>

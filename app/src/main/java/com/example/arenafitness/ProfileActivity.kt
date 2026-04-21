@@ -43,11 +43,18 @@ class ProfileActivity : AppCompatActivity() {
         tvProfileAddress = findViewById(R.id.tvProfileAddress)
         
         val btnEditProfile = findViewById<Button>(R.id.btnEditProfile)
+        val btnRenewMembership = findViewById<Button>(R.id.btnRenewMembership)
         val btnLogout = findViewById<Button>(R.id.btnLogout)
 
         // Logika klik EDIT PROFILE
         btnEditProfile.setOnClickListener {
             val intent = Intent(this, EditProfileActivity::class.java)
+            startActivity(intent)
+        }
+
+        // Logika klik PERPANJANG
+        btnRenewMembership.setOnClickListener {
+            val intent = Intent(this, MembershipActivity::class.java)
             startActivity(intent)
         }
 

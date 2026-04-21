@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="bottom">
+
+    <LinearLayout style="@style/BarChartColumn">
+        <View style="@style/BarChartValue" android:layout_height="60dp" android:background="@color/primary_red"/>
+        <TextView style="@style/BarChartLabel" android:text="Sen"/>
+    </LinearLayout>
+
+    <LinearLayout style="@style/BarChartColumn">
+        <View style="@style/BarChartValue" android:layout_height="50dp" android:background="@color/primary_red"/>
+        <TextView style="@style/BarChartLabel" android:text="Sel"/>
+    </LinearLayout>
+
+    <LinearLayout style="@style/BarChartColumn">
+        <View style="@style/BarChartValue" android:layout_height="2dp" android:background="#E0E0E0"/>
+        <TextView style="@style/BarChartLabel" android:text="Rab"/>
+    </LinearLayout>
+
+    <LinearLayout style="@style/BarChartColumn">
+        <View style="@style/BarChartValue" android:layout_height="70dp" android:background="@color/primary_red"/>
+        <TextView style="@style/BarChartLabel" android:text="Kam"/>
+    </LinearLayout>
+
+    <LinearLayout style="@style/BarChartColumn">
+        <View style="@style/BarChartValue" android:layout_height="55dp" android:background="@color/primary_red"/>
+        <TextView style="@style/BarChartLabel" android:text="Jum"/>
+    </LinearLayout>
+
+    <LinearLayout style="@style/BarChartColumn">
+        <View style="@style/BarChartValue" android:layout_height="2dp" android:background="#E0E0E0"/>
+        <TextView style="@style/BarChartLabel" android:text="Sab"/>
+    </LinearLayout>
+
+    <LinearLayout style="@style/BarChartColumn">
+        <View style="@style/BarChartValue" android:layout_height="40dp" android:background="@color/primary_red"/>
+        <TextView style="@style/BarChartLabel" android:text="Min"/>
+    </LinearLayout>
+
+</LinearLayout>
